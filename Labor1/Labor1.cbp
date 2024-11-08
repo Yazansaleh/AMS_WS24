@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Labor1" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/Labor1" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="/usr/local/include/player-3.1" />
+					<Add directory="/usr/include/tirpc" />
+					<Add directory="/lib/x86_64-linux-gnu" />
+				</Compiler>
+				<Linker>
+					<Add library="playerc++" />
+					<Add library="boost_system" />
+					<Add library="boost_thread" />
+					<Add library="boost_program_options" />
+					<Add library="newmat" />
+					<Add library="log4cpp" />
+					<Add library="ncurses" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/Labor1" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="AMS_DriveRandom_template.cpp" />
+		<Unit filename="AMS_Robot.cpp" />
+		<Unit filename="AMS_Robot.hpp" />
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>
