@@ -84,9 +84,6 @@ int main(int argc, char **argv) {
     double V01xV12 = V01(1)*V12(2)-V01(2)*V12(1);
     thetaL = V01xV12 >= 0 ? thetaL : -thetaL;
 
-//    double phi23 = acos(DotProduct(V01,V12)/(L01*L12));
-//    double V01xV12 = V01(1)*V12(2)-V01(2)*V12(1);
-//    if(V01xV12 <0) phi23 = -phi23;                   //Vorzeichen acos
 //    thetaL = M_PI - phi23/2;
 
 // d)
@@ -95,7 +92,7 @@ int main(int argc, char **argv) {
     yL = L*(thetaL/3 - pow(thetaL,3)/42 + pow(thetaL,5)/1320);
     delta = xL +yL*tan(thetaL);                      //xL+deltax
 // e)
-    Pc0 =P0+ V01* (L01-delta)/L01;             // P0->P1 mit länge delta                           falsch?
+    Pc0 =P0+ V01* (L01-delta)/L01;             // P0->P1 mit länge delta                        
     Pc1 =P1+ V12* delta/L12;
 
     /******************** Ende des zusätzlich eingefügten Quellcodes ********************/
