@@ -84,8 +84,6 @@ int main(int argc, char **argv) {
     double V01xV12 = V01(1)*V12(2)-V01(2)*V12(1);
     thetaL = V01xV12 >= 0 ? thetaL : -thetaL;
 
-//    thetaL = M_PI - phi23/2;
-
 // d)
     L = abs(2*thetaL*Rmin);
     xL = L*(1 - pow(thetaL,2)/10 + pow(thetaL,4)/216);
