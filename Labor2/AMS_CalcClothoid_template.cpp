@@ -71,28 +71,45 @@ int main(int argc, char **argv) {
 
 
     /********************* Fügen Sie ab hier eigenen Quellcode ein **********************/
-// a)
-	Rmin = robot.get_vmax()/robot.get_wmax();
+    
+// a) Berechnung des minimalen Krümmungsradius Rmin basierend auf der maximalen Bahn- und Winkelgeschwindigkeit
+    Rmin = robot.get_vmax() / robot.get_wmax();
 
-// b)
+// b) Berechnung der Vektoren V01 und V12 zwischen den Punkten P0 -> P1 und P1 -> P2 sowie deren Längen L01 und L12
     V01 = P1 - P0;
     V12 = P2 - P1;
     L01 = V01.NormFrobenius();
     L12 = V12.NormFrobenius();
-// c)
-    thetaL = (M_PI - (M_PI - acos(DotProduct(V01, V12)/(L01*L12))))/2;
-    double V01xV12 = V01(1)*V12(2)-V01(2)*V12(1);
+    
+// c) Berechnung des Tangentenwinkels thetaL an den Klothoiden-Scheitelpunkt
+// - Berechnet den Winkel zwischen den Vektoren V01 und V12
+// - Das Vorzeichen wird über das Kreuzprodukt V01xV12 bestimmt, um die Richtung (links/rechts) festzulegen
+    thetaL = (M_PI - (M_PI - acos(DotProduct(V01, V12) / (L01 * L12)))) / 2;
+    double V01xV12 = V01(1) * V12(2) - V01(2) * V12(1);
     thetaL = V01xV12 >= 0 ? thetaL : -thetaL;
 
-// d)
-    L = abs(2*thetaL*Rmin);
-    xL = L*(1 - pow(thetaL,2)/10 + pow(thetaL,4)/216);
-    yL = L*(thetaL/3 - pow(thetaL,3)/42 + pow(thetaL,5)/1320);
-    delta = xL +yL*tan(thetaL);                      //xL+deltax
-// e)
-    Pc0 =P0+ V01* (L01-delta)/L01;             // P0->P1 mit länge delta                        
-    Pc1 =P1+ V12* delta/L12;
+// d) Berechnung der halben Klothoidenlänge L und der Koordinaten xL und yL am Scheitelpunkt der Klothoide
+// - L = Gesamtlänge der Klothoide, um die Krümmung flüssig anzupassen
+// - xL: X-Koordinate am Scheitelpunkt der Klothoide, Taylor-Approximation für Genauigkeit
+    L = abs(2 * thetaL * Rmin);
+    xL = L * (1 - pow(thetaL, 2) / 10 + pow(thetaL, 4) / 216);  // Taylor-Reihen-Entwicklung zur Näherung der Fresnel-Integrale
+    
+// - yL: Y-Koordinate am Scheitelpunkt der Klothoide, basierend auf Taylor-Approximation für y
+    yL = L * (thetaL / 3 - pow(thetaL, 3) / 42 + pow(thetaL, 5) / 1320);  // Höhere Ordnungen der Taylor-Reihe für Steigungsanpassung
+// - delta: Offset für einen flüssigen Übergang von der Geraden zur Klothoide (delta = xL + yL * tan(thetaL))
+    delta = xL + yL * tan(thetaL);                     
 
+// e) Berechnung der Start- und Endpunkte Pc0 und Pc1 der Klothoide für einen krümmungsstetigen Übergang
+// - Pc0: Startpunkt der Klothoide in Richtung P1, abgeleitet von P0 unter Berücksichtigung von delta
+// - Pc1: Endpunkt der Klothoide in Richtung P2
+    Pc0 = P0 + V01 * (L01 - delta) / L01;                        
+    Pc1 = P1 + V12 * delta / L12;
+
+// Hinweis zu den Konstanten in den Berechnungen:
+// Die Werte wie 1/10, 1/216, 1/3, 1/42, und 1/1320 stammen aus der Taylor-Reihenentwicklung der Fresnel-Integrale,
+// die die mathematische Darstellung der Klothoidenkurve annähern. Sie korrigieren x und y für die Klothoidenform,
+// ohne das gesamte Integral berechnen zu müssen.
+    
     /******************** Ende des zusätzlich eingefügten Quellcodes ********************/
 
     // Abbruch, falls delta_x die Länge des Vektors V01 oder die des Vektors V12 übersteigt.
@@ -128,25 +145,32 @@ int main(int argc, char **argv) {
     // Zeichnen der Klothoiden
     k = 0.5/(thetaL*Rmin*Rmin);    // Parameter der Klothoiden (Vorzeichen von thetaL bestimmt Krümmungsrichtung)
     for( s=0; s<=L*2; s+=ds ) {    // Schleife über die Länge der zwei Klothoiden
-
         /********************* Fügen Sie ab hier eigenen Quellcode ein **********************/
-        if( s<=L )
-            theta = k*s*s/2;      // 1. Hälfte: Zunahme der Krümmung
+	    
+	    // Berechnung des Tangentenwinkels theta entlang der Klothoide
+        if( s <= L )
+            theta = k * s * s / 2;      // Erste Hälfte der Klothoide: Zunahme der Krümmung (Winkel nimmt zu)
         else
-            theta = 2*thetaL-k*(2*L-s)*(2*L-s)/2;      // 2. Hälfte: Abnahme der Krümmung
-        // Berechnung der lokalen Klothoidenkoordinaten vom Startpunkt Pc0 aus
-        xs += ds*cos(theta);
-        ys += ds*sin(theta);
-        // Koordinatentransformation mit Berücksichtigung des Startpunktes Pc0 und der Richtung phi1
-        px = Pc0(1) + xs*cos(phi1) - ys*sin(phi1);
-        py = Pc0(2) + xs*sin(phi1) + ys*cos(phi1);
+            theta = 2 * thetaL - k * (2 * L - s) * (2 * L - s) / 2;  // Zweite Hälfte: Abnahme der Krümmung
+
+        // Berechnung der lokalen Koordinaten xs und ys für die Klothoide
+        // - Schrittweite ds wird entlang des Winkels theta in x- und y-Richtung aufgeteilt
+        xs += ds * cos(theta);
+        ys += ds * sin(theta);
+
+        // Transformation der lokalen Klothoidenkoordinaten (xs, ys) in globale Koordinaten (px, py)
+        // - Startpunkt Pc0 und Ausrichtung phi1 werden berücksichtigt
+        px = Pc0(1) + xs * cos(phi1) - ys * sin(phi1);  // Globale x-Koordinate
+        py = Pc0(2) + xs * sin(phi1) + ys * cos(phi1);  // Globale y-Koordinate
 
         P(1) = px;
         P(2) = py;
 
         /******************** Ende des zusätzlich eingefügten Quellcodes ********************/
 
-        robot.draw_point(P(1), P(2), 255, 0, 255, 'm'); // Punkt zeichnen
+        robot.draw_point(P(1), P(2), 255, 0, 255, 'm'); // Zeichnen des Punktes P auf der Klothoide
+    }
+
 
         // Zusätzlicher Quellcode für Aufgabe 4 (bitte bei deren Bearbeitung entkommentieren und ergänzen)
 /*        if( (P-Ps).NormFrobenius() >= Delta_s ) {
