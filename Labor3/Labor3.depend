@@ -27,10 +27,16 @@
 1731676767 source:/home/yazan/Documents/AMS/Labor3/main.cpp
 	<iostream>
 
-1731679957 source:/home/yazan/Documents/AMS/Labor3/AMS_CalcClothoid_template.cpp
+1732886365 source:/home/yazan/Documents/AMS/Labor3/AMS_CalcClothoid_template.cpp
 	"AMS_Robot.hpp"
 	<newmat/newmatap.h>
 	<fstream>
+	"main.hpp"
 
-1731680013 source:/home/yazan/Documents/AMS/Labor3/AMS_DriveClothoid_template.cpp
+1732885969 source:/home/yazan/Documents/AMS/Labor3/AMS_DriveClothoid_template.cpp
+	"AMS_Robot.hpp"
+	"main.hpp"
+
+1732886178 /home/yazan/Documents/AMS/Labor3/main.hpp
+	"AMS_Robot.hpp"
 

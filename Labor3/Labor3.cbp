@@ -36,6 +36,7 @@
 		<Unit filename="AMS_DriveClothoid_template.cpp" />
 		<Unit filename="AMS_Robot.cpp" />
 		<Unit filename="AMS_Robot.hpp" />
+		<Unit filename="main.hpp" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

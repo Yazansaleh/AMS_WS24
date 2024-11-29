@@ -5,12 +5,12 @@
 #include "AMS_Robot.hpp"
 #include <newmat/newmatap.h>    // Lineare Algebra
 #include <fstream>              // Für Datei-Zugriff in Aufgabe 4
+#include "main.hpp"
 
 using namespace AMS;
 using namespace PlayerCc; // dtor, rtod, limit, normalize
 
 AMS_Robot robot;               // Roboterobjekt
-void DriveRobot(AMS_Robot* robotp, double L1, double LK, double L2, int turndir);
 
 int main(int argc, char **argv) {
 
@@ -211,99 +211,4 @@ int main(int argc, char **argv) {
 
     DriveRobot(&robot, L1,L,L2,turndir);
     while(1); // Endlosschleife
-}
-
-void DriveRobot(AMS_Robot* robotp, double L1, double LK, double L2, int turndir) {
-
-    double sb;           				// Beschleunigungsweg (= Bremsweg)
-    double tb;           				// Beschleunigungszeit
-    double tc;           				// Fahrtzeit mit vmax
-    double dt;           				// aktuelle Bewegungszeit
-    double t0;           				// Startzeitpunkt der Bewegung
-    double t0K;          				// Startzeitpunkt der Kurvenfahrt
-    double tbK;          				// Zeitdauer bis max. Winkelgeschwindigkeit erreicht wird
-    double w;            				// aktuelle vorzeichenrichtige Winkelgeschwindigkeit
-    double vmax = robotp->get_vmax();  // Maximale Bahngeschwindigkeit
-    double vacc = robotp->get_vacc();  // Bahnbeschleunigung
-    double wmax = robotp->get_wmax();  // maximale Winkelgeschwindigkeit
-
-    robotp->init_push_mode();  // data shall be read from message queue
-
-    /********************* Fügen Sie ab hier eigenen Quellcode ein **********************/
-
-    sb = (vmax*vmax) / (2*vacc);
-    tb = vmax/vacc;
-    tc = (L1 * 2*LK * L2 -2*sb)/vmax;
-    tbK =  2*LK / 2*vmax;
-
-    /******************** Ende des zusätzlich eingefügten Quellcodes ********************/
-
-    // gleichmäßige Beschleunigung während tb
-    robotp->wait_for_new_data(); // aktuelle Daten vom Roboter holen
-    t0 = robotp->get_t(); // Startzeitpunkt
-    robotp->log.info("Accelerating.");
-    do {
-        robotp->wait_for_new_data();
-        dt = robotp->get_t() - t0; // Bewegungszeit updaten
-        robotp->set_speed(vacc*dt, 0);
-    }
-    while( dt < tb);
-
-    // gleichförmige Bewegung mit maximaler Bahngeschwindigkeit während tc
-    // Währenddessen Befahren der Klothoiden
-    robotp->set_speed(vmax, 0);
-    robotp->log.info("Driving with constant speed.");
-
-    /********************* Fügen Sie ab hier eigenen Quellcode ein **********************/
-    t0K = (L1 - sb)/vmax + tb + t0;
-    double t0bk = t0K + tbK;
-    double tcEnd = t0 + tb + tc;
-
-    robotp->log.info("Driving with constant speed.");
-    do {
-        robotp->wait_for_new_data();
-        dt = robotp->get_t() - t0; // Bewegungszeit updaten
-    }
-    while( dt < t0K);
-
-    robotp->log.info("Driving in Klothoid 1st Half");
-    do {
-        robotp->wait_for_new_data();
-        dt = robotp->get_t() - t0K; // Bewegungszeit updaten
-        w = (wmax * turndir) * (dt/tbK);
-        robotp->set_speed(vmax, w);
-    }
-    while( dt < tbK);
-
-        robotp->log.info("Driving in Klothoid 2nd Half");
-    do {
-        robotp->wait_for_new_data();
-        dt = robotp->get_t() - t0bk; // Bewegungszeit updaten
-        w = (wmax - (wmax * (dt/tbK))* turndir);
-        robotp->set_speed(vmax, w);
-    }
-    while( dt < 2*tbK);
-
- do {
-        robotp->wait_for_new_data();
-        dt = robotp->get_t() - t0; // Bewegungszeit updaten
-        robotp->set_speed(vmax, w);
-    }
-    while( dt > 2*t0K && dt < tcEnd );
-
-
-
-
-    /******************** Ende des zusätzlich eingefügten Quellcodes ********************/
-
-    // Abbremsen während tb
-    robotp->log.info("Decelerating.");
-    do {
-        robotp->wait_for_new_data();
-        dt = robotp->get_t() - t0 - tb - tc; // aktuelle Bremszeit
-        robotp->set_speed(vmax-vacc*dt, 0);
-    }
-    while( dt < tb);
-
-    robotp->stop(); // Stoppen
 }
