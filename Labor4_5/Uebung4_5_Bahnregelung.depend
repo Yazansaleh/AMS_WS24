@@ -1,0 +1,43 @@
+# depslib dependency file v1.0
+1732881527 source:/home/megan/Dokumente/AMS_Uebung/Uebung4_5_Bahnregelung/AMS_DriveClothoid_template.cpp
+	"AMS_Robot.hpp"
+	"main.hpp"
+
+1639411566 /home/megan/Dokumente/AMS_Uebung/Uebung4_5_Bahnregelung/AMS_Robot.hpp
+	<string>
+	<boost/program_options.hpp>
+	<log4cpp/Category.hh>
+	<libplayerc++/playerc++.h>
+	"boost/date_time/posix_time/posix_time.hpp"
+	<newmat/newmatap.h>
+
+1731678621 /home/megan/Dokumente/AMS_Uebung/Uebung4_5_Bahnregelung/main.hpp
+	"AMS_Robot.hpp"
+
+1639409431 source:/home/megan/Dokumente/AMS_Uebung/Uebung4_5_Bahnregelung/AMS_Robot.cpp
+	"AMS_Robot.hpp"
+	<cassert>
+	<iostream>
+	<iomanip>
+	<fstream>
+	<sstream>
+	<time.h>
+	<log4cpp/OstreamAppender.hh>
+	<log4cpp/FileAppender.hh>
+	<log4cpp/SimpleLayout.hh>
+	<libplayerc++/utility.h>
+	<boost/numeric/ublas/io.hpp>
+	"boost/date_time/posix_time/posix_time.hpp"
+	<boost/numeric/ublas/vector.hpp>
+	"newmat/newmatio.h"
+
+1732884934 source:/home/megan/Dokumente/AMS_Uebung/Uebung4_5_Bahnregelung/AMS_CalcClothoid_template.cpp
+	"AMS_Robot.hpp"
+	"main.hpp"
+	<newmat/newmatap.h>
+	<fstream>
+
+1732887188 source:/home/megan/Dokumente/AMS_Uebung/Uebung4_5_Bahnregelung/AMS_DriveTraject_template.cpp
+	"AMS_Robot.hpp"
+	<fstream>
+
