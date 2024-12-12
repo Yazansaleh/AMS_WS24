@@ -29,8 +29,8 @@ int main(int argc, char **argv) {
     double a1, a2;         // Zwischengrößen für Regelung im Schritt i
     double e_x, e_y;       // Fehler zwischen Soll- und Ist-Koordinaten
     double e_vx, e_vy;     // Fehler zwischen Soll- und Ist-Geschwindigkeiten
-    const double kI=0.0;   // Regelparameter für Geschwindigkeitsfehler (entspricht P-Anteil)
-    const double kII=6.0;  // Regelparameter für Positionsfehler (entspricht I-Anteil)
+    const double kI=1.0;   // Regelparameter für Geschwindigkeitsfehler (entspricht P-Anteil)
+    const double kII=2;  // Regelparameter für Positionsfehler (entspricht I-Anteil)
     string file;            // Datei mit Punkten der zu befahrenden Trajektorie
     double dt;             // Zeitdauer für das Durchlaufen der aktuellen Schleife
     ptime tref;             // Objekt der Klasse ptime zur Messung von dt
@@ -60,10 +60,11 @@ int main(int argc, char **argv) {
 
     /********************* Fügen Sie ab hier eigenen Quellcode ein **********************/
 
-    theta =
+    theta = atan2(y_s1 - y_s, x_s1 -x_s);
+    robot.set_sim_pos(x, y, theta);
 
-    vx_s1 =
-    vy_s1 =
+    vx_s1 = (x_s1 - x_s)/T;
+    vy_s1 = (y_s1 - y_s)/T;
 
     /******************** Ende des zusätzlich eingefügten Quellcodes ********************/
 
@@ -75,34 +76,34 @@ int main(int argc, char **argv) {
 
         /********************* Fügen Sie ab hier eigenen Quellcode ein **********************/
 
-        v =
-        w =
-        delta =
-        phi =
+        v = robot.get_v();
+        w = robot.get_w();
+        delta = v*T;
+        phi = w*T;
 
-        x =
-        y =
-        theta =
+        x = x + delta*cos(theta + phi/2);
+        y = y + delta*sin(theta + phi/2);
+        theta = theta + phi;
 
-        vx =
-        vy =
+        vx = v * cos(theta);
+        vy = v * sin(theta);
 
-        vx_s =
-        vy_s =
-        ax_s =
-        ay_s =
+        vx_s = (x_s - x_s1)/T;
+        vy_s = (y_s - y_s1)/T;
+        ax_s = (vx_s - vx_s1)/T;
+        ay_s = (vy_s - vy_s1)/T;
 
-        e_x =
-        e_y =
-        e_vx =
-        e_vy =
+        e_x = x_s - x;
+        e_y = y_s - y;
+        e_vx = vx_s - vx;
+        e_vy = vy_s - vy;
 
-        ax =
-        ay =
-        a1 =
-        a2 =
-        v_st =
-        w_st =
+        ax = ax_s + kI*e_vx + kII*e_x;
+        ay = ay_s + kI*e_vy + kII*e_y;
+        a1 = ax*cos(theta) + ay*sin(theta);
+        a2 = -ax*sin(theta) + ay*cos(theta);
+        v_st = v_st + a1*T;
+        w_st = a2/v_st;
 
         /******************** Ende des zusätzlich eingefügten Quellcodes ********************/
 

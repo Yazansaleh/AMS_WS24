@@ -12,7 +12,7 @@ AMS_Robot robot;
 
 int main(int argc, char **argv) {
 
-    const double T = 1;   // feste Zeitdauer zwischen zwei Wegpunkten in Sekunden
+    const double T = 0.3;   // feste Zeitdauer zwischen zwei Wegpunkten in Sekunden
     double x, x_1;          // aktuelle und vorherige x-Koordinate
     double y, y_1;          // aktuelle und vorherige y-Koordinate
     double ds, ds_1;        // aktueller und vorheriger Abstand zwischen benachbarten Punkten
