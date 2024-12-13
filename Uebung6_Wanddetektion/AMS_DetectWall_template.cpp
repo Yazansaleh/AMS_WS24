@@ -109,10 +109,28 @@ int main(int argc, char **argv)
 
     // Berechnung des mittleren quadratischen Fehlers mit Rücksprung bei zu großem Fehler
     double rho[360];
-    double rho_max = scan[LUT[0]];
+    for(int j = 0; j < N; j++)
+    {
+        ri = scan[LUT[j]];
+        theta_i = LUT[j]*M_PI/180;
+        xi = ri*cos(theta_i);
+        yi = ri*sin(theta_i);
+        rho[j] = (xi*cos(PhiR) + yi*sin(PhiR) - dR);
+        rho[j]  *= rho[j];
+        var_rho += rho[j];
+    }
+    var_rho /= N;
+    var_rho = sqrt(var_rho);
+
+    //robot.log.info("Anzahl Messpubnkte am Anfang N: %i", N);
+
+    double rho_max = rho[0];
 
     int idx_max   = 0;
-    while(var_rho > 0.0001)
+    int N_start = 5;
+    N = N - 5;
+    //var_rho = 1;
+    while(var_rho > 0.01)
     {
         var_rho = 0;
         m_x = 0;
@@ -126,16 +144,18 @@ int main(int argc, char **argv)
             theta_i = LUT[j]*M_PI/180;
             xi = ri*cos(theta_i);
             yi = ri*sin(theta_i);
-            rho[j] = (xi*cos(PhiR) + yi*sin(PhiR) - d);
-            //rho_i = rho_i * rho_i;
-            var_rho += rho[j]*rho[j];
+            rho[j] = (xi*cos(PhiR) + yi*sin(PhiR) - dR);
+            rho[j] *= rho[j];
+            if(j == 2) rho_max = rho[j];
+            var_rho += rho[j];
             if(rho[j] > rho_max)
             {
                 rho_max = rho[j];
                 idx_max = j;
             }
         }
-        N = idx_max - 10;
+        N = idx_max;
+        robot.log.info("idx max: %i", N);
 
         for(int j = 0; j < N; j++)
         {
@@ -146,8 +166,8 @@ int main(int argc, char **argv)
             m_x += xi;
             m_y += yi;
         }
-        m_x /= N;
-        m_y /= N;
+        m_x /= (N);
+        m_y /= (N);
 
         for(int j = 0; j < N; j++)
         {
@@ -159,11 +179,11 @@ int main(int argc, char **argv)
             var_y += (yi*yi - m_y*m_y);
             cov_xy += (xi*yi - m_x*m_y);
         }
-        var_x /= N;
+        var_x /= (N);
         //var_x = sqrt(var_x);
         var_y /= N;
         //var_y = sqrt(var_y);
-        cov_xy /= N;
+        cov_xy /= (N-10);
         PhiR = 0.5*atan2(-2*cov_xy, var_y - var_x);
 
         // Berechnung des Normalenabstands der Regressionsgeraden
@@ -176,8 +196,9 @@ int main(int argc, char **argv)
             PhiR -= M_PI;
         }
 
-        var_rho /= N;
+        var_rho /= (N);
         var_rho = sqrt(var_rho);
+        robot.log.info("VAr Rho %.2lf", var_rho);
     }
 
 
