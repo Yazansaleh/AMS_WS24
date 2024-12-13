@@ -42,9 +42,9 @@ int main(int argc, char **argv)
 
     robot.init_push_mode();  // Daten von "robot" aus Warteschlange lesen
     robot.wait_for_new_data();
-    //robot.set_sim_pos(0, -1, 0);
+    //robot.set_sim_pos(1, -2, 0);
 
-    robot.set_sigma_ranger(1);
+    robot.set_sigma_ranger(0.01);
 
     robot.get_scan(scan, MaxRange, sigma_r); // Messwerte, max. Messdistanz und radiale Standardabweichung auslesen
 
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     // Rücksprung, falls keine Messwerte vorhanden sind
     if(N == 0)
     {
-        robot.log.alert("Keine Messwerte vorhanden");
+        robot.log.error("Keine Messwerte vorhanden");
         return 0;
     }
     // Berechnung des Normalenwinkels der Regressionsgeraden
@@ -108,20 +108,80 @@ int main(int argc, char **argv)
     }
 
     // Berechnung des mittleren quadratischen Fehlers mit Rücksprung bei zu großem Fehler
-    double rho_i;
-    for(int j = 0; j < N; j++)
+    double rho[360];
+    double rho_max = scan[LUT[0]];
+
+    int idx_max   = 0;
+    while(var_rho > 0.0001)
     {
-        ri = scan[LUT[j]];
-        theta_i = LUT[j]*M_PI/180;
-        xi = ri*cos(theta_i);
-        yi = ri*sin(theta_i);
-        rho_i = (xi*cos(PhiR) + yi*sin(PhiR) - d);
-        rho_i = rho_i * rho_i;
-        var_rho += rho_i;
+        var_rho = 0;
+        m_x = 0;
+        m_y = 0;
+        var_x = 0;
+        var_y = 0;
+        cov_xy = 0;
+        for(int j = 0; j < N; j++)
+        {
+            ri = scan[LUT[j]];
+            theta_i = LUT[j]*M_PI/180;
+            xi = ri*cos(theta_i);
+            yi = ri*sin(theta_i);
+            rho[j] = (xi*cos(PhiR) + yi*sin(PhiR) - d);
+            //rho_i = rho_i * rho_i;
+            var_rho += rho[j]*rho[j];
+            if(rho[j] > rho_max)
+            {
+                rho_max = rho[j];
+                idx_max = j;
+            }
+        }
+        N = idx_max - 10;
+
+        for(int j = 0; j < N; j++)
+        {
+            ri = scan[LUT[j]];
+            theta_i = LUT[j]*M_PI/180;
+            xi = ri*cos(theta_i);
+            yi = ri*sin(theta_i);
+            m_x += xi;
+            m_y += yi;
+        }
+        m_x /= N;
+        m_y /= N;
+
+        for(int j = 0; j < N; j++)
+        {
+            ri = scan[LUT[j]];
+            theta_i = LUT[j]*M_PI/180;
+            xi = ri*cos(theta_i);
+            yi = ri*sin(theta_i);
+            var_x += (xi*xi - m_x*m_x);
+            var_y += (yi*yi - m_y*m_y);
+            cov_xy += (xi*yi - m_x*m_y);
+        }
+        var_x /= N;
+        //var_x = sqrt(var_x);
+        var_y /= N;
+        //var_y = sqrt(var_y);
+        cov_xy /= N;
+        PhiR = 0.5*atan2(-2*cov_xy, var_y - var_x);
+
+        // Berechnung des Normalenabstands der Regressionsgeraden
+        dR = m_x*cos(PhiR) + m_y*sin(PhiR);
+
+        // Korrektur bei negativem Normalenabstand
+        if(dR < 0)
+        {
+            dR = abs(dR);
+            PhiR -= M_PI;
+        }
+
+        var_rho /= N;
+        var_rho = sqrt(var_rho);
     }
-    var_rho /= N;
-    var_rho = sqrt(var_rho);
-    if(var_rho > 0.00001)
+
+
+    if(var_rho > sigma_r)
     {
         robot.log.alert("Keine Signifikante Gerade erkannt");
         return 1;
@@ -137,8 +197,9 @@ int main(int argc, char **argv)
         Phi -= M_PI;
     }
 
-    robot.log.info("Roboter POsition: x = %.2lf, y = %.2lf, theta = %.2lf", x, y, theta*180/M_PI);
-    robot.log.info("Erkannte Gerade gegenüber Roboter-Position: Abstand %.2lfm, Winkel: %.2lf", dR, PhiR*180/M_PI);
+    //robot.log.info("Roboter POsition: x = %.2lf, y = %.2lf, theta = %.2lf", x, y, theta*180/M_PI);
+    //robot.log.info("Erkannte Gerade gegenüber Roboter-Position: Abstand %.2lfm, Winkel: %.2lf", dR, PhiR*180/M_PI);
+    robot.log.info("Anzahl Messpubnkte N: %i", N);
     robot.log.info("Erkannte Gerade global: Abstand %.2lfm, Winkel: %.2lf°, Fehler: %.6lf", d, Phi*180/M_PI, var_rho);
 
     /******************** Ende des zusätzlich eingefügten Quellcodes ********************/
