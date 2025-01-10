@@ -1,0 +1,42 @@
+# depslib dependency file v1.0
+1639409431 source:/home/yessine/AMS/Uebung/AMS_cpp_hpp/AMS_cpp_hpp/Uebung7_Kalman/AMS_Robot.cpp
+	"AMS_Robot.hpp"
+	<cassert>
+	<iostream>
+	<iomanip>
+	<fstream>
+	<sstream>
+	<time.h>
+	<log4cpp/OstreamAppender.hh>
+	<log4cpp/FileAppender.hh>
+	<log4cpp/SimpleLayout.hh>
+	<libplayerc++/utility.h>
+	<boost/numeric/ublas/io.hpp>
+	"boost/date_time/posix_time/posix_time.hpp"
+	<boost/numeric/ublas/vector.hpp>
+	"newmat/newmatio.h"
+
+1639411566 /home/yessine/AMS/Uebung/AMS_cpp_hpp/AMS_cpp_hpp/Uebung7_Kalman/AMS_Robot.hpp
+	<string>
+	<boost/program_options.hpp>
+	<log4cpp/Category.hh>
+	<libplayerc++/playerc++.h>
+	"boost/date_time/posix_time/posix_time.hpp"
+	<newmat/newmatap.h>
+
+1736166439 source:/home/yessine/AMS/Uebung/AMS_cpp_hpp/AMS_cpp_hpp/Uebung7_Kalman/AMS_KalmanFilter_template.cpp
+	"AMS_KalmanFilter.hpp"
+	<iostream>
+	"newmat/newmatio.h"
+
+1736161783 /home/yessine/AMS/Uebung/AMS_cpp_hpp/AMS_cpp_hpp/Uebung7_Kalman/AMS_KalmanFilter.hpp
+	"AMS_Robot.hpp"
+	<iostream>
+	"newmat/newmatio.h"
+
+1736166456 source:/home/yessine/AMS/Uebung/AMS_cpp_hpp/AMS_cpp_hpp/Uebung7_Kalman/AMS_ControlTraject_template.cpp
+	"AMS_Robot.hpp"
+	"AMS_KalmanFilter.hpp"
+	"boost/date_time/posix_time/posix_time.hpp"
+	<fstream>
+
